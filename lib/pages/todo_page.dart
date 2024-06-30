@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:app/helpers/snackbar.dart';
 import 'package:app/models/todo_model.dart';
 import 'package:app/services/todo_service.dart';
 import 'package:app/utils/colors.dart';
@@ -20,6 +23,14 @@ class _TodoPageState extends State<TodoPage>
   late List<Todo> todos = [];
   late List<Todo> incompleedTodos = [];
   late List<Todo> completedTodos = [];
+  TextEditingController taskController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    tabBarController.dispose();
+    taskController.dispose();
+  }
 
   @override
   void initState() {
@@ -50,6 +61,104 @@ class _TodoPageState extends State<TodoPage>
     });
   }
 
+  //method for save tasks
+  void _addTodo() async {
+    try {
+      if (taskController.text.isNotEmpty) {
+        final Todo newTodo = Todo(
+          title: taskController.text,
+          date: DateTime.now(),
+          time: DateTime.now(),
+          isDone: false,
+        );
+        await todoService.addTodo(newTodo);
+        setState(() {
+          todos.add(newTodo);
+          incompleedTodos.add(newTodo);
+        });
+        AppHelper.showShnackBar(context, "Task Added Successfully");
+      }
+    } catch (e) {
+      AppHelper.showShnackBar(context, "Failed To Add Task");
+    }
+  }
+
+  void openMessageModel(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.kCardColor,
+          contentPadding: EdgeInsets.zero,
+          title: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  "Add Task",
+                  style: AppTextStyles.appDescription
+                      .copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: TextField(
+                controller: taskController,
+                style: TextStyle(color: AppColors.kWhiteColor, fontSize: 20),
+                decoration: InputDecoration(
+                  hintText: "Enter Task",
+                  hintStyle: AppTextStyles.appDescriptionSmall,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                _addTodo();
+                Navigator.pop(context);
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(
+                  AppColors.kCardColor,
+                ),
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              child: const Text(
+                "Add",
+                style: AppTextStyles.appButton,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(
+                  AppColors.kCardColor,
+                ),
+              ),
+              child: const Text(
+                "Cancel",
+                style: AppTextStyles.appButton,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +183,9 @@ class _TodoPageState extends State<TodoPage>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          openMessageModel(context);
+        },
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(100),
@@ -92,9 +203,11 @@ class _TodoPageState extends State<TodoPage>
         children: [
           TodoTab(
             inCompletedTodos: incompleedTodos,
+            completedTodos: completedTodos,
           ),
           CompletedTab(
-            completdTodos: completedTodos,
+            completedTodos: completedTodos,
+            inCompletedTodos: incompleedTodos,
           ),
         ],
       ),
