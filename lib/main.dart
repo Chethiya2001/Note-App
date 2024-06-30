@@ -2,6 +2,7 @@ import 'package:app/models/note_model.dart';
 import 'package:app/models/todo_model.dart';
 import 'package:app/utils/routes.dart';
 import 'package:app/utils/theme_dark.dart';
+import 'package:app/widgets/todo_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -26,11 +27,19 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: RouterClass.router,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeClass.darkTheme.copyWith(
-        textTheme: GoogleFonts.dmSansTextTheme(Theme.of(context).textTheme),
+    return TodoData(
+      todos: [],
+      onTodoChanged: () {
+        
+      },
+      child: MaterialApp.router(
+        routerConfig: RouterClass.router,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeClass.darkTheme.copyWith(
+          textTheme: GoogleFonts.dmSansTextTheme(
+            Theme.of(context).textTheme,
+          ),
+        ),
       ),
     );
   }

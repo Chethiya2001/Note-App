@@ -6,6 +6,7 @@ import 'package:app/services/todo_service.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/utils/text_theme.dart';
 import 'package:app/widgets/completed_todo_tba_widget.dart';
+import 'package:app/widgets/todo_inherited_widget.dart';
 import 'package:app/widgets/todo_tab_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -161,55 +162,60 @@ class _TodoPageState extends State<TodoPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        bottom: TabBar(
-          tabs: const [
-            Tab(
-              child: Text(
-                'Todo',
-                style: AppTextStyles.appDescription,
+    return TodoData(
+      onTodoChanged: _loadTodos,
+      todos: todos,
+      child: Scaffold(
+        appBar: AppBar(
+          
+          bottom: TabBar(
+            tabs: const [
+              Tab(
+                child: Text(
+                  'Todo',
+                  style: AppTextStyles.appDescription,
+                ),
               ),
+              Tab(
+                child: Text(
+                  'Completed',
+                  style: AppTextStyles.appDescription,
+                ),
+              ),
+            ],
+            controller: tabBarController,
+            dividerColor: Colors.transparent,
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            openMessageModel(context);
+          },
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(100),
             ),
-            Tab(
-              child: Text(
-                'Completed',
-                style: AppTextStyles.appDescription,
-              ),
+            side: BorderSide(color: Colors.white, width: 2),
+          ),
+          child: Icon(
+            Icons.add,
+            color: AppColors.kWhiteColor,
+            size: 25,
+          ),
+        ),
+        body: TabBarView(
+          controller: tabBarController,
+          children: [
+            TodoTab(
+              inCompletedTodos: incompleedTodos,
+              completedTodos: completedTodos,
+            ),
+            CompletedTab(
+              completedTodos: completedTodos,
+              inCompletedTodos: incompleedTodos,
             ),
           ],
-          controller: tabBarController,
-          dividerColor: Colors.transparent,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          openMessageModel(context);
-        },
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(100),
-          ),
-          side: BorderSide(color: Colors.white, width: 2),
-        ),
-        child: Icon(
-          Icons.add,
-          color: AppColors.kWhiteColor,
-          size: 25,
-        ),
-      ),
-      body: TabBarView(
-        controller: tabBarController,
-        children: [
-          TodoTab(
-            inCompletedTodos: incompleedTodos,
-            completedTodos: completedTodos,
-          ),
-          CompletedTab(
-            completedTodos: completedTodos,
-            inCompletedTodos: incompleedTodos,
-          ),
-        ],
       ),
     );
   }
